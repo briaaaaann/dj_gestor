@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\barro\\\\OneDrive\\\\Documentos\\\\DJ Gestor\" -Recurse -File | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object @{N='Path';E={$_.FullName.Replace\\('C:\\\\Users\\\\barro\\\\OneDrive\\\\Documentos\\\\DJ Gestor\\\\',''\\)}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\barro\\\\OneDrive\\\\Documentos\\\\DJ Gestor\" -Recurse -File | Where-Object { $_.FullName -notmatch 'node_modules|\\\\.claude' } | ForEach-Object { $_.FullName.Replace\\('C:\\\\Users\\\\barro\\\\OneDrive\\\\Documentos\\\\DJ Gestor\\\\',''\\) } | Sort-Object)"
+    ]
+  }
+}

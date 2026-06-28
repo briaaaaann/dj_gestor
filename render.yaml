@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: dj-party-live
+    env: node
+    plan: free
+    healthCheckPath: /api/health
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DJ_PIN
+        sync: false          # Render dashboard → Environment → Add env var
+      - key: CLOUDINARY_URL
+        sync: false          # Render dashboard → Environment → Add env var
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: dj-party-kv
+          property: connectionString
+
+  # Render Key Value (Redis) — plan gratuito
+  # Límites:
+  #   · 25 MB RAM máx  (~25 fiestas simultáneas con carga media)
+  #   · Sin persistencia: los datos se pierden si Render reinicia el servicio
+  #     → el DJ DEBE usar "Terminar fiesta" para limpiar Cloudinary antes de cerrar
+  #   · Sin keyspace notifications: el TTL de Redis no dispara limpieza de Cloudinary
+  #     → limpieza lazy en el primer acceso tras expirar (ver party.js → isExpired)
+  #   · ~25 conexiones simultáneas (Socket.IO usa 1 por cliente conectado)
+  - type: redis
+    name: dj-party-kv
+    plan: free
+    ipAllowList: []          # solo acceso interno desde el Web Service
