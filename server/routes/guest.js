@@ -6,27 +6,33 @@ import { getParty, pushPending, pushRequest } from '../redis.js';
 import { uploadBuffer } from '../cloudinary.js';
 
 const photoLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: 5 * 60 * 1000,
+  max: 1,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Demasiadas fotos enviadas. Espera antes de enviar otra.' },
+  message: { error: 'Ya enviaste una foto. Espera 5 minutos para enviar otra.' },
 });
 
+// Clave IP + tipo para que canción y saludo tengan contadores independientes
 const requestLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 5 * 60 * 1000,
+  max: 1,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Demasiadas peticiones. Espera un momento.' },
+  keyGenerator: (req) => `${req.ip}-${req.body?.type || 'request'}`,
+  message: { error: 'Ya enviaste una petición de este tipo. Espera 5 minutos.' },
 });
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB máx (ya viene comprimida del cliente)
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB máx sobre el blob ya comprimido
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(Object.assign(new Error('Solo imágenes'), { status: 400 }));
+    // application/octet-stream: algunos Android lo usan para blobs de canvas
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/octet-stream') {
+      cb(null, true);
+    } else {
+      cb(Object.assign(new Error('Solo imágenes'), { status: 400 }));
+    }
   },
 });
 

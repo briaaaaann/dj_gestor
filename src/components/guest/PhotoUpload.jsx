@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { compressImage } from '../../utils/compress.js';
 
-const MAX_FILE_MB = 10;
+const MAX_FILE_MB = 50; // Fotos de cámara modernas pesan 15–25 MB; se comprimen antes de subir
 
 export default function PhotoUpload({ partyId }) {
   const [preview, setPreview] = useState(null);
@@ -99,7 +99,7 @@ export default function PhotoUpload({ partyId }) {
         <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/30 rounded-2xl p-10 cursor-pointer hover:border-white/60 transition">
           <span className="text-5xl">📷</span>
           <span className="text-white text-lg font-medium">Tomar o elegir foto</span>
-          <span className="text-white/50 text-sm">JPG, PNG · máx. {MAX_FILE_MB} MB</span>
+          <span className="text-white/50 text-sm">Foto o cámara · máx. {MAX_FILE_MB} MB</span>
           <input
             ref={inputRef}
             type="file"
