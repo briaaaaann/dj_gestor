@@ -60,8 +60,8 @@ export default function createGuestRouter(io) {
           transformation: [{ width: 1600, height: 1600, crop: 'limit' }],
         });
       } catch (e) {
-        console.error('[Cloudinary upload]', e.message);
-        return res.status(500).json({ error: 'Error al guardar la imagen' });
+        console.error('[Cloudinary upload]', e.message, e.http_code);
+        return res.status(500).json({ error: `Cloudinary: ${e.message || JSON.stringify(e)}` });
       }
 
       const photo = {
