@@ -29,8 +29,10 @@ export default function PhotoUpload({ partyId }) {
       setPreview(url);
       setBlob(compressed);
       setStatus('ready');
-    } catch {
-      setError('No se pudo procesar la imagen. Intenta con otra.');
+    } catch (err) {
+      const msg = err?.message || String(err);
+      console.error('[PhotoUpload] compress error:', msg, err);
+      setError(`Compresión: ${msg}`);
       setStatus('idle');
     }
   };
@@ -49,15 +51,21 @@ export default function PhotoUpload({ partyId }) {
       });
 
       if (res.status === 429) {
-        setError('Demasiadas fotos enviadas. Espera un momento.');
+        setError('Ya enviaste una foto. Espera 5 minutos.');
         setStatus('ready');
         return;
       }
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        let serverMsg = `HTTP ${res.status}`;
+        try { const d = await res.json(); serverMsg = d.error || serverMsg; } catch {}
+        throw new Error(serverMsg);
+      }
 
       setStatus('done');
-    } catch {
-      setError('Error al enviar la foto. Intenta de nuevo.');
+    } catch (err) {
+      const msg = err?.message || String(err);
+      console.error('[PhotoUpload] upload error:', msg, err);
+      setError(`Upload: ${msg}`);
       setStatus('ready');
     }
   };
